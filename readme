@@ -1,2 +1,4 @@
 chạy file với lệnh
 python request_google_maps.py
+Kết quả là:
+lưu vào file: google_maps_phone.csv với cột tên địa điểm, số điện thoại, địa chỉ
