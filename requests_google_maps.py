@@ -41,4 +41,4 @@ with open("google_maps_phones.csv", "w", newline="", encoding="utf-8") as file:
         print(f"{name} - {phone} - {address}")
         writer.writerow([name, phone, address])  # Ghi vào file CSV
 
-print("Dữ liệu đã được lưu vào google_maps_phones.csv")
+print("Dữ liệu đã được  lưu vào google_maps_phones.csv")
