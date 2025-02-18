@@ -1,131 +1,76 @@
-chạy file với lệnh
-python request_google_maps.py
-Kết quả là:
-lưu vào file: google_maps_phone.csv với cột tên địa điểm, số điện thoại, địa chỉ
+// hoạt động hướng dẫn
+Để chạy script quét dữ liệu Google Maps và lưu vào file CSV / Excel, bạn làm theo các bước sau:
 
-Tor Network là một cách hiệu quả để đổi IP miễn phí liên tục khi scrape dữ liệu. Dưới đây là cách cài đặt và sử dụng Tor trong Python để gửi request ẩn danh.
+1. Cài Đặt Các Công Cụ Cần Thiết
 
-1. Cài Đặt Tor
+🔹 Bước 1: Cài Đặt Python (Nếu Chưa Có)
+	•	Windows: Tải Python từ python.org và cài đặt
+	•	Mac/Linux: Python thường có sẵn, kiểm tra bằng lệnh:
 
-🔹 Linux / Mac
+python3 --version
 
-Mở terminal và chạy lệnh:
 
-sudo apt install tor  # Ubuntu/Debian
-brew install tor  # MacOS
 
-🔹 Windows
-	1.	Tải Tor Expert Bundle từ trang chính thức:
-🔗 https://www.torproject.org/download/
-	2.	Giải nén và chạy tor.exe trong thư mục Tor
+🔹 Bước 2: Cài Đặt Tor
 
-📌 Sau khi cài đặt, kiểm tra Tor đang chạy bằng lệnh:
+📌 Windows:
+	1.	Tải Tor tại: https://www.torproject.org/download/
+	2.	Cài đặt & chạy Tor Expert Bundle
+	3.	Mở Terminal (cmd hoặc PowerShell), chạy:
 
 tor
 
-Nếu Tor hoạt động đúng, bạn sẽ thấy dòng:
-✅ “Bootstrapped 100%: Done”
 
-2. Dùng Tor Với Python (Requests + Proxy SOCKS5)
 
-Sau khi Tor chạy, bạn có thể gửi request thông qua SOCKS5 proxy tại 127.0.0.1:9050.
+📌 Mac / Linux:
+Cài đặt & chạy Tor:
 
-📌 Cài đặt thư viện Python cần thiết:
+brew install tor  # MacOS
+sudo apt install tor  # Ubuntu/Debian
+tor
 
-pip install requests[socks]
-
-📌 Gửi request qua Tor:
-
-import requests
-
-proxies = {
-    "http": "socks5h://127.0.0.1:9050",
-    "https": "socks5h://127.0.0.1:9050"
-}
-
-url = "http://check.torproject.org"  # Kiểm tra IP
-response = requests.get(url, proxies=proxies)
-
-print(response.text)  # Nếu thành công, sẽ thấy "Congratulations. This browser is configured to use Tor"
-
-📌 Lưu ý:
-	•	Tor chỉ hỗ trợ SOCKS5 proxy, không phải HTTP/HTTPS proxy.
-	•	Bạn cần chạy Tor trước khi chạy script Python.
-
-3. Tự Động Đổi IP Sau Mỗi Request
-
-Tor có thể thay đổi IP bằng cách gửi lệnh NEWNYM qua cổng 9051.
-
-📌 Bật điều khiển Tor:
-	1.	Mở file cấu hình Tor (torrc)
-	•	Trên Linux/Mac: /etc/tor/torrc
-	•	Trên Windows: C:\Users\USERNAME\AppData\Roaming\tor\torrc
-	2.	Thêm dòng sau để kích hoạt cổng điều khiển:
+🔹 Bước 3: Cấu Hình Tor Để Đổi IP
+	1.	Mở file cấu hình torrc:
+	•	Windows: C:\Users\USERNAME\AppData\Roaming\tor\torrc
+	•	Linux/Mac: /etc/tor/torrc
+	2.	Thêm các dòng sau:
 
 ControlPort 9051
 HashedControlPassword ""
 CookieAuthentication 0
 
 
-	3.	Khởi động lại Tor
+	3.	Lưu & khởi động lại Tor
 
-📌 Python Script để đổi IP tự động:
+📌 Kiểm tra Tor hoạt động bằng lệnh:
 
-import requests
-import stem.process
-from stem.control import Controller
+curl --socks5-hostname 127.0.0.1:9050 http://check.torproject.org
 
-proxies = {
-    "http": "socks5h://127.0.0.1:9050",
-    "https": "socks5h://127.0.0.1:9050"
-}
+Nếu thấy dòng “Congratulations. This browser is configured to use Tor” thì OK.
 
-def new_tor_identity():
-    with Controller.from_port(port=9051) as controller:
-        controller.authenticate()  # Không cần mật khẩu nếu đã chỉnh file torrc
-        controller.signal(stem.Signal.NEWNYM)  # Gửi lệnh đổi IP
-        print("Đã đổi IP thành công!")
+2. Cài Đặt Các Thư Viện Cần Thiết
 
-# Gửi request kiểm tra IP trước và sau khi đổi
-url = "http://check.torproject.org"
+📌 Mở terminal (cmd trên Windows) và chạy:
 
-print("IP cũ:")
-print(requests.get(url, proxies=proxies).text)
+pip install requests[socks] stem fake-useragent pandas
 
-new_tor_identity()  # Đổi IP
+3. Chạy Script
 
-print("IP mới:")
-print(requests.get(url, proxies=proxies).text)
+📌 Cách 1: Chạy Bằng Python Terminal
+	1.	Mở Terminal hoặc CMD
+	2.	Chạy script bằng lệnh:
 
-📌 Giải thích:
-	•	Hàm new_tor_identity() gửi lệnh NEWNYM đến Tor để đổi IP.
-	•	Script sẽ hiển thị IP trước và sau khi đổi.
+python quet_google_maps.py
 
-4. Giới Hạn & Lưu Ý Khi Dùng Tor
 
-🔸 Tor không nhanh vì nó định tuyến qua nhiều máy chủ ẩn danh.
-🔸 Google & nhiều trang web có thể chặn Tor, bạn cần dùng User-Agent giả mạo.
-🔸 Nếu Tor bị chặn, bạn có thể thêm Bridges trong file torrc để vượt qua.
 
-5. Kết Hợp Tor & Fake User-Agent Để Không Bị Chặn
+📌 Cách 2: Chạy Trực Tiếp Trong VS Code
+	1.	Mở VS Code
+	2.	Mở script quet_google_maps.py
+	3.	Nhấn Run ▶ hoặc bấm Ctrl + Shift + P, chọn Run Python File
 
-📌 Thêm User-Agent giả mạo để tránh bị phát hiện:
+4. Kết Quả
 
-from fake_useragent import UserAgent
-
-ua = UserAgent()
-headers = {"User-Agent": ua.random}
-
-response = requests.get("http://check.torproject.org", proxies=proxies, headers=headers)
-print(response.text)
-
-📌 Cài đặt thư viện Fake User-Agent:
-
-pip install fake-useragent
-
-Tóm Tắt
-
-✅ Tor giúp đổi IP miễn phí liên tục
-✅ Có thể tự động đổi IP sau mỗi request
-✅ Cần dùng SOCKS5 proxy (127.0.0.1:9050) để kết nối
-✅ Có thể kết hợp với Fake User-Agent để tránh bị chặn
+✔ Dữ liệu được lưu vào file business_data.csv và business_data.xlsx
+✔ Số điện thoại & địa chỉ doanh nghiệp được lấy tự động
+✔ Tor tự động đổi IP sau mỗi 3 request để tránh bị 
